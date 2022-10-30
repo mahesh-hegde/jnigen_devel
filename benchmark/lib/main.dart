@@ -3,59 +3,43 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class PlatformChannel extends StatefulWidget {
-  const PlatformChannel({super.key});
+class BenchmarkApp extends StatefulWidget {
+  const BenchmarkApp({super.key});
 
   @override
-  State<PlatformChannel> createState() => _PlatformChannelState();
+  State<BenchmarkApp> createState() => _BenchmarkAppState();
 }
 
-class _PlatformChannelState extends State<PlatformChannel> {
+class _BenchmarkAppState extends State<BenchmarkApp> {
   static const MethodChannel methodChannel =
-      MethodChannel('samples.flutter.io/battery');
-  static const EventChannel eventChannel =
-      EventChannel('samples.flutter.io/charging');
+      MethodChannel('com.github.dart_lang.jnigen/benchmark');
 
-  String _batteryLevel = 'Battery level: unknown.';
-  String _chargingStatus = 'Battery status: unknown.';
+  String _result = 'Unknown';
 
-  Future<void> _getBatteryLevel() async {
-    String batteryLevel;
+  Future<void> _getInteger() async {
+    String displayResult = '';
     try {
-      final int? result = await methodChannel.invokeMethod('getBatteryLevel');
-      batteryLevel = 'Battery level: $result%.';
+      final int? integer = await methodChannel.invokeMethod('getInteger');
+      displayResult += 'Received: $integer\n';
+      final String? z10 =
+          await methodChannel.invokeMethod('getStringOfLength', 10);
+      displayResult += 'Received: $z10\n';
+      final String? scream =
+          await methodChannel.invokeMethod('toUpperCase', "scream");
+      displayResult += 'Received: $scream\n';
+      final int? maxNum = await methodChannel.invokeMethod(
+          'max', Int32List.fromList([1, 27, 64, 3, 128, 256, 5, 6]));
+      displayResult += 'Received: $maxNum\n';
     } on PlatformException catch (e) {
-      if (e.code == 'NO_BATTERY') {
-        batteryLevel = 'No battery.';
-      } else {
-        batteryLevel = 'Failed to get battery level.';
-      }
+      displayResult = 'Error: $e';
     }
     setState(() {
-      _batteryLevel = batteryLevel;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
-  }
-
-  void _onEvent(Object? event) {
-    setState(() {
-      _chargingStatus =
-          "Battery status: ${event == 'charging' ? '' : 'dis'}charging.";
-    });
-  }
-
-  void _onError(Object error) {
-    setState(() {
-      _chargingStatus = 'Battery status: unknown.';
+      _result = displayResult;
     });
   }
 
@@ -68,17 +52,16 @@ class _PlatformChannelState extends State<PlatformChannel> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text(_batteryLevel, key: const Key('Battery level label')),
+              Text(_result, key: const Key('Integer result label')),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
-                  onPressed: _getBatteryLevel,
+                  onPressed: _getInteger,
                   child: const Text('Refresh'),
                 ),
               ),
             ],
           ),
-          Text(_chargingStatus),
         ],
       ),
     );
@@ -86,5 +69,5 @@ class _PlatformChannelState extends State<PlatformChannel> {
 }
 
 void main() {
-  runApp(const MaterialApp(home: PlatformChannel()));
+  runApp(const MaterialApp(home: BenchmarkApp()));
 }
