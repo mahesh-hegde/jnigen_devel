@@ -21,23 +21,31 @@ class _BenchmarkAppState extends State<BenchmarkApp> {
 
   String _result = 'Unknown';
 
-  Future<void> _getInteger() async {
-    String displayResult = '';
-    try {
-      final int? integer = await methodChannel.invokeMethod('getInteger');
-      displayResult += 'Received: $integer\n';
-      final String? z10 =
-          await methodChannel.invokeMethod('getStringOfLength', 10);
-      displayResult += 'Received: $z10\n';
-      final String? scream =
-          await methodChannel.invokeMethod('toUpperCase', "scream");
-      displayResult += 'Received: $scream\n';
-      final int? maxNum = await methodChannel.invokeMethod(
-          'max', Int32List.fromList([1, 27, 64, 3, 128, 256, 5, 6]));
-      displayResult += 'Received: $maxNum\n';
-    } on PlatformException catch (e) {
-      displayResult = 'Error: $e';
+  num timeChannelMethod(String methodName, dynamic arguments, int nTimes) {
+    final begin = DateTime.now();
+    for (int i = 0; i < nTimes; i++) {
+      Object? _ = methodChannel.invokeMethod(methodName, arguments);
     }
+    final end = DateTime.now();
+    return end.difference(begin).inMicroseconds / 1000;
+  }
+
+  Future<void> _getResults() async {
+    var displayResult =
+        'getInteger: ${timeChannelMethod("getInteger", null, 1000)}\n'
+        'getStringOfLength(1000): ${timeChannelMethod("getStringOfLength", 1000, 1000)}\n'
+        'toUpperCase(1000): ${timeChannelMethod("toUpperCase", "s" * 1000, 1000)}\n'
+        'max: ${timeChannelMethod("max", Int32List.fromList([
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  10,
+                  5,
+                  11
+                ]), 1000)}\n';
+
     setState(() {
       _result = displayResult;
     });
@@ -56,7 +64,7 @@ class _BenchmarkAppState extends State<BenchmarkApp> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
-                  onPressed: _getInteger,
+                  onPressed: _getResults,
                   child: const Text('Refresh'),
                 ),
               ),
