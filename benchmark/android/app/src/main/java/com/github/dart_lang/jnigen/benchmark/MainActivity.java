@@ -47,11 +47,11 @@ public class MainActivity extends FlutterActivity {
             });
   }
 
-  public int getInteger() {
+  public static int getInteger() {
     return 72;
   }
 
-  public String getStringOfLength(int n) {
+  public static String getStringOfLength(int n) {
     StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < n; i++) {
       buffer.append("z");
@@ -69,19 +69,19 @@ public class MainActivity extends FlutterActivity {
     }
   }
 
-  public Coordinate getOrigin() {
+  public static Coordinate getOrigin() {
     return new Coordinate(0, 0, 0);
   }
 
-  public Coordinate getMidPoint(Coordinate a, Coordinate b) {
+  public static Coordinate getMidPoint(Coordinate a, Coordinate b) {
     return new Coordinate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
   }
 
-  public String toUpperCase(String text) {
+  public static String toUpperCase(String text) {
     return text.toUpperCase();
   }
 
-  public int max(int a, int b, int c, int d, int e, int f, int g, int h) {
+  public static int max(int a, int b, int c, int d, int e, int f, int g, int h) {
     int abcd = Math.max(Math.max(a, b), Math.max(c, d));
     int efgh = Math.max(Math.max(e, f), Math.max(g, h));
     return Math.max(abcd, efgh);
