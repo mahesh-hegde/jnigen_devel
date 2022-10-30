@@ -4,97 +4,86 @@
 
 package com.github.dart_lang.jnigen.benchmark;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.BatteryManager;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import android.os.Bundle;
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.plugin.common.EventChannel;
-import io.flutter.plugin.common.EventChannel.EventSink;
-import io.flutter.plugin.common.EventChannel.StreamHandler;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+import java.util.Objects;
 
 public class MainActivity extends FlutterActivity {
-  private static final String BATTERY_CHANNEL = "samples.flutter.io/battery";
-  private static final String CHARGING_CHANNEL = "samples.flutter.io/charging";
+  private static final String BENCHMARK_CHANNEL = "com.github.dart_lang.jnigen/benchmark";
 
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-    new EventChannel(flutterEngine.getDartExecutor(), CHARGING_CHANNEL).setStreamHandler(
-      new StreamHandler() {
-        private BroadcastReceiver chargingStateChangeReceiver;
-        @Override
-        public void onListen(Object arguments, EventSink events) {
-          chargingStateChangeReceiver = createChargingStateChangeReceiver(events);
-          registerReceiver(
-              chargingStateChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        }
-
-        @Override
-        public void onCancel(Object arguments) {
-          unregisterReceiver(chargingStateChangeReceiver);
-          chargingStateChangeReceiver = null;
-        }
-      }
-    );
-
-    new MethodChannel(flutterEngine.getDartExecutor(), BATTERY_CHANNEL).setMethodCallHandler(
-      new MethodCallHandler() {
-        @Override
-        public void onMethodCall(MethodCall call, Result result) {
-          if (call.method.equals("getBatteryLevel")) {
-            int batteryLevel = getBatteryLevel();
-
-            if (batteryLevel != -1) {
-              result.success(batteryLevel);
-            } else {
-              result.error("UNAVAILABLE", "Battery level not available.", null);
-            }
-          } else {
-            result.notImplemented();
-          }
-        }
-      }
-    );
+    new MethodChannel(flutterEngine.getDartExecutor(), BENCHMARK_CHANNEL)
+        .setMethodCallHandler(
+            (call, result) -> {
+              switch (call.method) {
+                case "getInteger":
+                  result.success(getInteger());
+                  break;
+                case "getStringOfLength":
+                  Integer n = Objects.requireNonNull(call.arguments());
+                  result.success(getStringOfLength(n));
+                  break;
+                case "toUpperCase":
+                  String text = Objects.requireNonNull(call.arguments());
+                  result.success(toUpperCase(text));
+                  break;
+                case "max":
+                  int[] numbers = Objects.requireNonNull(call.arguments());
+                  result.success(
+                      max(
+                          numbers[0],
+                          numbers[1],
+                          numbers[2],
+                          numbers[3],
+                          numbers[4],
+                          numbers[5],
+                          numbers[6],
+                          numbers[7]));
+                  break;
+              }
+            });
   }
 
-  private BroadcastReceiver createChargingStateChangeReceiver(final EventSink events) {
-    return new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-
-        if (status == BatteryManager.BATTERY_STATUS_UNKNOWN) {
-          events.error("UNAVAILABLE", "Charging status unavailable", null);
-        } else {
-          boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                               status == BatteryManager.BATTERY_STATUS_FULL;
-          events.success(isCharging ? "charging" : "discharging");
-        }
-      }
-    };
+  public int getInteger() {
+    return 72;
   }
 
-  private int getBatteryLevel() {
-    if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-      BatteryManager batteryManager = (BatteryManager) getSystemService(BATTERY_SERVICE);
-      return batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-    } else {
-      Intent intent = new ContextWrapper(getApplicationContext()).
-          registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-      return (intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100) /
-          intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+  public String getStringOfLength(int n) {
+    StringBuilder buffer = new StringBuilder();
+    for (int i = 0; i < n; i++) {
+      buffer.append("z");
     }
+    return buffer.toString();
+  }
+
+  public static class Coordinate {
+    int x, y, z;
+
+    public Coordinate(int x, int y, int z) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+    }
+  }
+
+  public Coordinate getOrigin() {
+    return new Coordinate(0, 0, 0);
+  }
+
+  public Coordinate getMidPoint(Coordinate a, Coordinate b) {
+    return new Coordinate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+  }
+
+  public String toUpperCase(String text) {
+    return text.toUpperCase();
+  }
+
+  public int max(int a, int b, int c, int d, int e, int f, int g, int h) {
+    int abcd = Math.max(Math.max(a, b), Math.max(c, d));
+    int efgh = Math.max(Math.max(e, f), Math.max(g, h));
+    return Math.max(abcd, efgh);
   }
 }
