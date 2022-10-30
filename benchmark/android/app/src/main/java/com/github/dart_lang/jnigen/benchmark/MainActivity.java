@@ -4,17 +4,20 @@
 
 package com.github.dart_lang.jnigen.benchmark;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
 import java.util.Objects;
 
+@Keep
 public class MainActivity extends FlutterActivity {
   private static final String BENCHMARK_CHANNEL = "com.github.dart_lang.jnigen/benchmark";
 
   @Override
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+    super.configureFlutterEngine(flutterEngine);
     new MethodChannel(flutterEngine.getDartExecutor(), BENCHMARK_CHANNEL)
         .setMethodCallHandler(
             (call, result) -> {
@@ -78,7 +81,7 @@ public class MainActivity extends FlutterActivity {
   }
 
   public static String toUpperCase(String text) {
-    return text.toUpperCase();
+    return text;
   }
 
   public static int max(int a, int b, int c, int d, int e, int f, int g, int h) {
