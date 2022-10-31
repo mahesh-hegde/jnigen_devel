@@ -2,14 +2,99 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:async';
-
 import 'package:jni/jni.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'benchmark_functions.dart';
+
+const repetitions = 1000;
+
+Duration timeFunction(Function() function, int repetitions) {
+  final begin = DateTime.now();
+  for (int i = 0; i < repetitions; i++) {
+    function();
+  }
+  final end = DateTime.now();
+  return end.difference(begin);
+}
+
+/// Runs a measurement and returns duration taken.
+typedef Measurer = Duration Function(
+    Map<String, int> variables, int repetitions);
+
+class MeasurementCard extends StatefulWidget {
+  static Map<String, TextEditingController> _getControllers(
+          Map<String, int> tunables) =>
+      tunables.map((name, defaultValue) =>
+          MapEntry(name, TextEditingController(text: '$defaultValue')));
+
+  MeasurementCard({
+    required this.name,
+    required this.measurers,
+    required Map<String, int> tunables,
+    Key? key,
+  })  : controllers = _getControllers(tunables),
+        super(key: key);
+  final String name;
+  final Map<String, Measurer> measurers;
+  final Map<String, TextEditingController> controllers;
+
+  @override
+  State<StatefulWidget> createState() => _MeasurementCardState();
+}
+
+class _MeasurementCardState extends State<MeasurementCard> {
+  Map<String, Duration> measurements = {};
+  Map<String, int> _getTunables() => widget.controllers.map(
+        (name, controller) => MapEntry(name, int.parse(controller.text)),
+      );
+  Map<String, Duration> _getMeasurements() => widget.measurers.map(
+        (name, measurer) =>
+            MapEntry(name, measurer(_getTunables(), repetitions)),
+      );
+
+  String _formatDuration(Duration duration) {
+    final micros = duration.inMicroseconds;
+    return '${micros / 1000} ms';
+  }
+
+  Widget _pad(Widget w) => Padding(padding: const EdgeInsets.all(8), child: w);
+
+  @override
+  Widget build(BuildContext context) {
+    final controllers = widget.controllers;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(widget.name,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
+              for (var tunable in controllers.keys)
+                _pad(TextField(
+                    decoration: InputDecoration(hintText: tunable),
+                    controller: controllers[tunable]!)),
+              for (var measurer in measurements.keys)
+                _pad(Text(
+                  '$measurer: ${_formatDuration(measurements[measurer]!)}',
+                  textAlign: TextAlign.left,
+                )),
+              ElevatedButton(
+                child: const Text("Refresh"),
+                onPressed: () {
+                  setState(() => measurements = _getMeasurements());
+                },
+              ),
+            ]),
+      ),
+    );
+  }
+}
 
 class BenchmarkApp extends StatefulWidget {
   const BenchmarkApp({super.key});
@@ -19,27 +104,26 @@ class BenchmarkApp extends StatefulWidget {
 }
 
 class _BenchmarkAppState extends State<BenchmarkApp> {
+  final input = TextEditingController(text: '50');
   static const MethodChannel methodChannel =
       MethodChannel('com.github.dart_lang.jnigen/benchmark');
 
-  String _result = 'Unknown';
-
-  num timeChannelMethod(String methodName, dynamic arguments, int nTimes) {
+  Duration timeChannelMethod(String methodName, dynamic arguments, int nTimes) {
     final begin = DateTime.now();
     for (int i = 0; i < nTimes; i++) {
       Object? _ = methodChannel.invokeMethod(methodName, arguments);
     }
     final end = DateTime.now();
-    return end.difference(begin).inMicroseconds / nTimes;
+    return end.difference(begin);
   }
 
-  num timeFunction(Function() f, int nTimes) {
+  Duration timeFunction(Function() function, int nTimes) {
     final begin = DateTime.now();
     for (int i = 0; i < nTimes; i++) {
-      f();
+      function();
     }
     final end = DateTime.now();
-    return end.difference(begin).inMicroseconds / nTimes;
+    return end.difference(begin);
   }
 
   int getInteger() {
@@ -55,42 +139,62 @@ class _BenchmarkAppState extends State<BenchmarkApp> {
             .toDartString(deleteOriginal: true);
       });
 
-  Future<void> _getResults() async {
-    const n = 50;
-    var result = 'Method channels:\n'
-        'getInteger: ${timeChannelMethod("getInteger", null, 1000)}\n'
-        'getStringOfLength($n): ${timeChannelMethod("getStringOfLength", n, 1000)}\n'
-        'toUpperCase("s" * $n): ${timeChannelMethod("toUpperCase", "s" * n, 1000)}\n\n';
-
-    result += 'JNI:\n'
-        'getInteger: ${timeFunction(getInteger, 1000)}\n'
-        'getStringOfLength($n): ${timeFunction(() => getStringOfLength(n), 1000)}\n'
-        'toUpperCase("s" * $n): ${timeFunction(() => toUpperCase("s" * n), 1000)}\n';
-    setState(() {
-      _result = result + getStringOfLength(10);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(_result, key: const Key('Integer result label')),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                  onPressed: _getResults,
-                  child: const Text('Refresh'),
-                ),
-              ),
-            ],
-          ),
-        ],
+    return MaterialApp(
+      title: "jnigen performance measurements",
+      color: Colors.teal,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text("JNI measurements"),
+        ),
+        body: ListView(
+          children: <Widget>[
+            MeasurementCard(
+              name: "getInteger",
+              measurers: {
+                'Method channel': (_, reps) =>
+                    timeChannelMethod('getInteger', null, reps),
+                'JNI': (_, reps) => timeFunction(getInteger, reps),
+              },
+              tunables: const {},
+            ),
+            MeasurementCard(
+              name: "getStringOfLength",
+              tunables: const {"length": 50},
+              measurers: {
+                'Method channel': (params, reps) => timeChannelMethod(
+                    'getStringOfLength', params["length"], reps),
+                'JNI': (params, reps) {
+                  final length = params["length"]!;
+                  return timeFunction(() => getStringOfLength(length), reps);
+                },
+              },
+            ),
+            MeasurementCard(
+              name: 'toUpperCase',
+              tunables: const {"length": 50},
+              measurers: {
+                'Method channel': (params, reps) => timeChannelMethod(
+                    'toUpperCase', "s" * params["length"]!, reps),
+                'JNI': (params, reps) {
+                  final arg = "e" * params["length"]!;
+                  return timeFunction(() => toUpperCase(arg), reps);
+                }
+              },
+            ),
+            MeasurementCard(
+              name: 'getOrigin',
+              tunables: const {},
+              measurers: {
+                'JNI': (_, reps) => timeFunction(() {
+                      final origin = MainActivity.getOrigin();
+                      origin.delete();
+                    }, reps),
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
