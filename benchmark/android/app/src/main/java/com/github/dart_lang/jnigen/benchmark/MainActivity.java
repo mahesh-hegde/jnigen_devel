@@ -62,8 +62,9 @@ public class MainActivity extends FlutterActivity {
     return buffer.toString();
   }
 
+  @Keep
   public static class Coordinate {
-    int x, y, z;
+    public int x, y, z;
 
     public Coordinate(int x, int y, int z) {
       this.x = x;
@@ -72,10 +73,12 @@ public class MainActivity extends FlutterActivity {
     }
   }
 
+  @Keep
   public static Coordinate getOrigin() {
     return new Coordinate(0, 0, 0);
   }
 
+  @Keep
   public static Coordinate getMidPoint(Coordinate a, Coordinate b) {
     return new Coordinate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
   }

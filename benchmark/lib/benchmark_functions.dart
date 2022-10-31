@@ -109,6 +109,33 @@ class MainActivity_Coordinate extends jni.JniObject {
       "com/github/dart_lang/jnigen/benchmark/MainActivity\$Coordinate");
   MainActivity_Coordinate.fromRef(jni.JObject ref) : super.fromRef(ref);
 
+  static final _id_x = jniAccessors.getFieldIDOf(_classRef, "x", "I");
+
+  /// from: public int x
+  int get x =>
+      jniAccessors.getField(reference, _id_x, jni.JniType.intType).integer;
+
+  /// from: public int x
+  set x(int value) => jniEnv.SetIntField(reference, _id_x, value);
+
+  static final _id_y = jniAccessors.getFieldIDOf(_classRef, "y", "I");
+
+  /// from: public int y
+  int get y =>
+      jniAccessors.getField(reference, _id_y, jni.JniType.intType).integer;
+
+  /// from: public int y
+  set y(int value) => jniEnv.SetIntField(reference, _id_y, value);
+
+  static final _id_z = jniAccessors.getFieldIDOf(_classRef, "z", "I");
+
+  /// from: public int z
+  int get z =>
+      jniAccessors.getField(reference, _id_z, jni.JniType.intType).integer;
+
+  /// from: public int z
+  set z(int value) => jniEnv.SetIntField(reference, _id_z, value);
+
   static final _id_ctor =
       jniAccessors.getMethodIDOf(_classRef, "<init>", "(III)V");
 
