@@ -20,7 +20,7 @@ class DartOnlyFunctions implements SyncMeasuredFunctions {
 
   @override
   String toUpperCase(String s) => using((arena) {
-        final js = JniString.fromString(s)..deletedIn(arena);
+        final js = JString.fromString(s)..deletedIn(arena);
         return MainActivity.toUpperCase(js).toDartString(deleteOriginal: true);
       });
 

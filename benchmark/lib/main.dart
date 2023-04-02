@@ -134,7 +134,7 @@ class _BenchmarkAppState extends State<BenchmarkApp> {
   }
 
   String toUpperCase(String text) => using((arena) {
-        return MainActivity.toUpperCase(text.jniString()..deletedIn(arena))
+        return MainActivity.toUpperCase(text.toJString()..deletedIn(arena))
             .toDartString(deleteOriginal: true);
       });
 
