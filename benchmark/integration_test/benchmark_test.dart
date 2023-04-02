@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:benchmark/benchmark_utils.dart';
 import 'package:benchmark/functions/c_based_functions.dart';
 import 'package:benchmark/functions/dart_only_functions.dart';
