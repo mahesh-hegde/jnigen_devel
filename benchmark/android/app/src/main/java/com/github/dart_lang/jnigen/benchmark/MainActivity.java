@@ -9,7 +9,9 @@ import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
+
 import java.util.Objects;
+import java.util.ArrayList;
 
 @Keep
 public class MainActivity extends FlutterActivity {
@@ -34,17 +36,17 @@ public class MainActivity extends FlutterActivity {
                   result.success(toUpperCase(text));
                   break;
                 case "max":
-                  int[] numbers = Objects.requireNonNull(call.arguments());
+                  ArrayList<Integer> numbers = Objects.requireNonNull(call.arguments());
                   result.success(
                       max(
-                          numbers[0],
-                          numbers[1],
-                          numbers[2],
-                          numbers[3],
-                          numbers[4],
-                          numbers[5],
-                          numbers[6],
-                          numbers[7]));
+                          numbers.get(0),
+                          numbers.get(1),
+                          numbers.get(2),
+                          numbers.get(3),
+                          numbers.get(4),
+                          numbers.get(5),
+                          numbers.get(6),
+                          numbers.get(7)));
                   break;
               }
             });

@@ -7,21 +7,12 @@ import 'package:jni/jni.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'benchmark_functions.dart';
+import 'bindings/dart_only_bindings.dart';
 
 const repetitions = 1000;
 
-Duration timeFunction(Function() function, int repetitions) {
-  final begin = DateTime.now();
-  for (int i = 0; i < repetitions; i++) {
-    function();
-  }
-  final end = DateTime.now();
-  return end.difference(begin);
-}
-
 /// Runs a measurement and returns duration taken.
-typedef Measurer = Duration Function(
+typedef Measurer = Future<Duration> Function(
     Map<String, int> variables, int repetitions);
 
 class MeasurementCard extends StatefulWidget {
@@ -46,11 +37,11 @@ class MeasurementCard extends StatefulWidget {
 }
 
 class _MeasurementCardState extends State<MeasurementCard> {
-  Map<String, Duration> measurements = {};
+  Map<String, Future<Duration>> measurements = {};
   Map<String, int> _getTunables() => widget.controllers.map(
         (name, controller) => MapEntry(name, int.parse(controller.text)),
       );
-  Map<String, Duration> _getMeasurements() => widget.measurers.map(
+  Map<String, Future<Duration>> _getMeasurements() => widget.measurers.map(
         (name, measurer) =>
             MapEntry(name, measurer(_getTunables(), repetitions)),
       );
@@ -80,10 +71,17 @@ class _MeasurementCardState extends State<MeasurementCard> {
                     decoration: InputDecoration(hintText: tunable),
                     controller: controllers[tunable]!)),
               for (var measurer in measurements.keys)
-                _pad(Text(
-                  '$measurer: ${_formatDuration(measurements[measurer]!)}',
-                  textAlign: TextAlign.left,
-                )),
+                _pad(
+                  FutureBuilder(
+                    future: measurements[measurer]!,
+                    builder: (BuildContext context,
+                            AsyncSnapshot<Duration> snapshot) =>
+                        Text(
+                      '$measurer: ${snapshot.hasData ? _formatDuration(snapshot.data!) : "waiting"}',
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
               ElevatedButton(
                 child: const Text("Refresh"),
                 onPressed: () {
@@ -108,16 +106,17 @@ class _BenchmarkAppState extends State<BenchmarkApp> {
   static const MethodChannel methodChannel =
       MethodChannel('com.github.dart_lang.jnigen/benchmark');
 
-  Duration timeChannelMethod(String methodName, dynamic arguments, int nTimes) {
+  Future<Duration> timeChannelMethod(
+      String methodName, dynamic arguments, int nTimes) async {
     final begin = DateTime.now();
     for (int i = 0; i < nTimes; i++) {
-      Object? _ = methodChannel.invokeMethod(methodName, arguments);
+      Object? _ = await methodChannel.invokeMethod(methodName, arguments);
     }
     final end = DateTime.now();
     return end.difference(begin);
   }
 
-  Duration timeFunction(Function() function, int nTimes) {
+  Future<Duration> timeFunction(Function() function, int nTimes) async {
     final begin = DateTime.now();
     for (int i = 0; i < nTimes; i++) {
       function();

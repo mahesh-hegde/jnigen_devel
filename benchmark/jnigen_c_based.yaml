@@ -1,0 +1,16 @@
+android_sdk_config:
+  add_gradle_deps: true
+
+output:
+  bindings_type: c_based
+  c:
+    path: src/benchmark_functions/
+    library_name: benchmark_functions
+  dart:
+    path: lib/bindings/c_based_bindings.dart
+    structure: single_file
+
+source_path:
+  - "android/app/src/main/java"
+classes:
+  - "com.github.dart_lang.jnigen.benchmark.MainActivity"
