@@ -12,21 +12,21 @@ class Benchmarker {
   Benchmarker({required this.repetitions});
 
   Duration timeSyncCallback(SyncCallback callback) {
-    final begin = DateTime.now();
+    final stopwatch = Stopwatch()..start();
     for (int i = 0; i < repetitions; i++) {
       callback();
     }
-    final end = DateTime.now();
-    return end.difference(begin);
+    stopwatch.stop();
+    return Duration(microseconds: stopwatch.elapsedMicroseconds);
   }
 
   Future<Duration> timeAsyncCallback<T>(AsyncCallback<T> callback) async {
-    final begin = DateTime.now();
+    final stopwatch = Stopwatch()..start();
     for (int i = 0; i < repetitions; i++) {
       await callback();
     }
-    final end = DateTime.now();
-    return end.difference(begin);
+    stopwatch.stop();
+    return Duration(microseconds: stopwatch.elapsedMicroseconds);
   }
 
   static const stringLengths = [0, 1, 10, 50, 100, 250, 500];
