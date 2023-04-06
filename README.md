@@ -181,6 +181,26 @@ It's recommended to have `clang-format` installed for formatting the generated C
 ## Contributing
 See the wiki for architecture-related documents.
 
+## FAQs
+
+#### I am getting ClassNotFoundError at runtime.
+`jnigen` does not handle getting the classes into application. It has to be done by target-specific mechanism. Such as adding a gradle dependency on Android, or manually providing classpath to `Jni.spawn` on desktop / standalone targets.
+
+On Android, `proguard` prunes classes which it deems inaccessible. Since JNI class lookup happens in runtime, this leads to ClassNotFound errors in release mode even if the dependency is included in gradle. [in_app_java example](example/in_app_java/) discusses two mechanisms to prevent this: using `Keep` annotation (`androidx.annotation.Keep`) for the code written in the application itself, and [proguard-rules file](example/in_app_java/android/app/proguard-rules.pro) for external libraries.
+
+Lastly, some libraries such as `java.awt` do not exist in android. Attempting to use libraries which depend on them can also lead to ClassNotFound errors.
+
+#### `jnigen` is not finding classes.
+Ensure you are providing correct source and class paths, and they follow standard directory structure. If your class name is `com.abc.MyClass`, `MyClass` must be in `com/abc/MyClass.java` relative to one of the source paths, or `com/abc/MyClass.class` relative to one of the class paths specified in YAML.
+
+If the classes are in JAR file, make sure to provide path to JAR file itself, and not the containing directory.
+
+#### `jnigen` is unable to parse sources.
+If the errors are similar to `symbol not found`, ensure all dependencies of the source are available. If such dependency is compiled, it can be included in `class_path`.
+
+#### Should I use `jnigen` over Method channels?
+This is currently an experimental package. Many features are missing, and it's rough around the edges. You're welcome to try it and give feedback.
+
 ## YAML Configuration Reference
 Keys ending with a colon (`:`) denote subsections.
 
