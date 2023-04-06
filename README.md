@@ -12,15 +12,13 @@ Three configuration details are needed to generate the bindings. Everything else
 
 * _Inputs_: input can be Java source files (`source_path`), or compiled classes / JARs (`class_path`). Some maven / gradle based tooling is also provided to simplify obtaining dependencies.
 
-* _Outputs_: Output can be generated in package-structured (one file per class) or single file bindings.
+* _Outputs_: Output can be generated in package-structured (one file per class) or single file bindings. Target path to write C and Dart bindings needs to be specified.
 
 * _Classes_: Specify which classes or packages you need bindings for. Specifying a package includes all classes inside it recursively.
 
 Check out the [example/](example/) directory for few usage examples.
 
 C code is always generated into a directory with it's own build configuration. It's built as a separate dynamic library.
-
-`jnigen` doesn't handle shipping of the JAR files / sources into your application. It has to be done by target-specific mechanism. In case of Android, the libraries have to be added to gradle dependencies, and required classes should be included in proguard-rules file to retain them in release mode. On desktop / standalone targets, the compiled JAR files can be provided as classpath to `Jni.spawn` call.
 
 Lastly, [dart_only bindings](#pure-dart-bindings) mode is also available as a proof-of-concept, which does not need intermediate C bindings apart from dependency on the support library `package:jni`.
 
@@ -29,7 +27,9 @@ It's possible to generate bindings for libraries, or Java source files.
 
 Here's a simple example Java file, in a Flutter Android app.
 <details>
+
 <summary>Java code:</summary>
+
 ```java
 package com.example.in_app_java;
 
@@ -47,11 +47,15 @@ public abstract class AndroidUtils {
   }
 }
 ```
+
 </details>
 
 This produces the following boilerplate:
+
 <details>
+
 <summary>Dart Bindings:</summary>
+
 ```dart
 /// Some boilerplate is omitted for clarity.
 final ffi.Pointer<T> Function<T extends ffi.NativeType>(String sym) jniLookup =
@@ -78,7 +82,9 @@ class AndroidUtils extends jni.JObject {
 </details>
 
 <details>
+
 <summary>C Bindings:</summary>
+
 ```c
 // Some boilerplate is omitted for clarity.
 
