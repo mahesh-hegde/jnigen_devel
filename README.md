@@ -4,13 +4,32 @@
 ## Introduction
 Experimental bindings generator for Java bindings through dart:ffi and JNI.
 
-It generates C and Dart bindings which enable calling Java libraries from Dart. C bindings call the Java code through JNI, Dart bindings in turn call these C bindings through FFI.
+`jnigen` scans compiled JAR files or well-formed Java source code to generate a description of the API, then uses it to generate Dart annd C bindings. Dart bindings call the C bindings, which in-turn call the Java functions through JNI. Common functionality and base classes are provided through the support library, `package:jni`.
+
+The configuration for binding generation is usually provided through YAML. A programmatic API (`package:jnigen`) is also provided.
+
+Three configuration details are needed to generate the bindings. Everything else is optional:
+
+* _Inputs_: input can be Java source files (`source_path`), or compiled classes / JARs (`class_path`). Some maven / gradle based tooling is also provided to simplify obtaining dependencies.
+
+* _Outputs_: Output can be generated in package-structured (one file per class) or single file bindings.
+
+* _Classes_: Specify which classes or packages you need bindings for. Specifying a package includes all classes inside it recursively.
+
+Check out the [example/](example/) directory for few usage examples.
+
+C code is always generated into a directory with it's own build configuration. It's built as a separate dynamic library.
+
+`jnigen` doesn't handle shipping of the JAR files / sources into your application. It has to be done by target-specific mechanism. In case of Android, the libraries have to be added to gradle dependencies, and required classes should be included in proguard-rules file to retain them in release mode. On desktop / standalone targets, the compiled JAR files can be provided as classpath to `Jni.spawn` call.
+
+Lastly, [dart_only bindings](#pure-dart-bindings) mode is also available as a proof-of-concept, which does not need intermediate C bindings apart from dependency on the support library `package:jni`.
 
 ## Example
-It's possible to generate bindings for libraries, or any Java source files.
+It's possible to generate bindings for libraries, or Java source files.
 
 Here's a simple example Java file, in a Flutter Android app.
-
+<details>
+<summary>Java code:</summary>
 ```java
 package com.example.in_app_java;
 
@@ -28,8 +47,11 @@ public abstract class AndroidUtils {
   }
 }
 ```
+</details>
 
-This produces the following Dart bindings:
+This produces the following boilerplate:
+<details>
+<summary>Dart Bindings:</summary>
 ```dart
 /// Some boilerplate is omitted for clarity.
 final ffi.Pointer<T> Function<T extends ffi.NativeType>(String sym) jniLookup =
@@ -53,7 +75,10 @@ class AndroidUtils extends jni.JObject {
       _showToast(mainActivity.reference, text.reference, duration).check();
 }
 ```
+</details>
 
+<details>
+<summary>C Bindings:</summary>
 ```c
 // Some boilerplate is omitted for clarity.
 
@@ -79,6 +104,7 @@ JniResult AndroidUtils__showToast(jobject mainActivity,
   return (JniResult){.result = {.j = 0}, .exception = check_exception()};
 }
 ```
+</details>
 
 The YAML configuration used to generate the above code looks like this:
 
@@ -100,7 +126,7 @@ classes:
   - 'com.example.in_app_java.AndroidUtils'
 ```
 
-The complete example can be found in [jnigen/example/in_app_java](jnigen/example/in_app_java). The complete example adds one more class to the configuration to demonstrate using JAR files instead of sources.
+The complete example can be found in [jnigen/example/in_app_java](jnigen/example/in_app_java), which adds few more classes to demonstrate using classes from gradle JAR and source dependencies.
 
 More examples can be found in [jnigen/example/](jnigen/example/).
 
@@ -114,33 +140,10 @@ More examples can be found in [jnigen/example/](jnigen/example/).
 
 On Android, the flutter application runs embedded in Android JVM. On other platforms, a JVM needs to be explicitly spawned using `Jni.spawn`. `package:jni` provides the infrastructure for initializing and managing the JNI on both Android and Non-Android platforms.
 
-## `package:jnigen` and `package:jni`
-This repository contains two packages: `package:jni` (support library) and `package:jnigen` (code generator).
-
-`package:jnigen` generates C bindings which call Java methods through JNI, and Dart bindings which call these C wrappers through FFI.
-
-The generated code relies on common infrastructure provided by `package:jni` support library.
-
-For building a description of Java API, `jnigen` needs complete source code or JAR files of the corresponding library. `jnigen` can use either complete sources or compiled classes from JAR files to build this API description. These are to be provided in the configuration as `class_path` and `source_path` respectively.
-
-It's possible to generate Java code mirroring source layout with each class having a separate dart file, or all classes into a same dart file.
-
-C code is always generated into a directory with it's own build configuration. It's built as a separate dynamic library.
-
-As a proof-of-concept, [pure dart bindings](#pure-dart-bindings) which do not require C code (apart from `package:jni` dependency) are supported.
-
-## Usage
-There are 2 ways to use `jnigen`:
-
-* Run as command line tool with a YAML config.
-* Import `package:jnigen/jnigen.dart` from a script in `tool/` directory of your project.
-
-Both approaches are almost identical. When using YAML, it's possible to selectively override configuration properties with command line, using `-Dproperty_name=value` syntax. We usually use YAML in our [examples](jnigen/example/). See the [YAML Reference](#yaml-configuration-reference) at the end of this document for a tabular description of configuration properties.
-
 ## Java features support
 Currently basic features of the Java language are supported in the bindings. Each Java class is mapped to a Dart class. Bindings are generated for methods, constructors and fields. Exceptions thrown in Java are rethrown in Dart with stack trace from Java.
 
-More advanced features are not supported yet. Support for these features is tracked in the [issue tracker](https://github.com/dart-lang/jnigen/issues).
+More advanced features such as callbacks are not supported yet. Support for these features is tracked in the [issue tracker](https://github.com/dart-lang/jnigen/issues).
 
 ### Note on Dart (standalone) target
 `package:jni` is an FFI plugin containing native code, and any bindings generated from jnigen contains native code too.
@@ -168,7 +171,7 @@ For example, on Powershell:
 $env:Path += ";${env:JAVA_HOME}\bin\server".
 ```
 
-(If JAVA_HOME not set, find the `java.exe` executable and set the environment variable in Control Panel). If java is installed through a package manager, there may be a more automatic way to do this. (Eg: `scoop reset`).
+If JAVA_HOME not set, find the `java.exe` executable and set the environment variable in Control Panel. If java is installed through a package manager, there may be a more automatic way to do this. (Eg: `scoop reset`).
 
 ### C/C++ tooling
 CMake and a standard C toolchain are required to build `package:jni` and C bindings generated by `jnigen`.
