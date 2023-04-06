@@ -4,7 +4,7 @@
 ## Introduction
 Experimental bindings generator for Java bindings through dart:ffi and JNI.
 
-`jnigen` scans compiled JAR files or well-formed Java source code to generate a description of the API, then uses it to generate Dart annd C bindings. Dart bindings call the C bindings, which in-turn call the Java functions through JNI. Common functionality and base classes are provided through the support library, `package:jni`.
+`jnigen` scans compiled JAR files or well-formed Java source code to generate a description of the API, then uses it to generate Dart annd C bindings. Dart bindings call the C bindings, which in-turn call the Java functions through JNI. Shared functionality and base classes are provided through the support library, `package:jni`.
 
 The configuration for binding generation is usually provided through YAML. A programmatic API (`package:jnigen`) is also provided.
 
@@ -26,9 +26,6 @@ Lastly, [dart_only bindings](#pure-dart-bindings) mode is also available as a pr
 It's possible to generate bindings for libraries, or Java source files.
 
 Here's a simple example Java file, in a Flutter Android app.
-<details>
-
-<summary>Java code:</summary>
 
 ```java
 package com.example.in_app_java;
@@ -48,13 +45,9 @@ public abstract class AndroidUtils {
 }
 ```
 
-</details>
-
 This produces the following boilerplate:
 
-<details>
-
-<summary>Dart Bindings:</summary>
+#### Dart Bindings:
 
 ```dart
 /// Some boilerplate is omitted for clarity.
@@ -79,11 +72,8 @@ class AndroidUtils extends jni.JObject {
       _showToast(mainActivity.reference, text.reference, duration).check();
 }
 ```
-</details>
 
-<details>
-
-<summary>C Bindings:</summary>
+#### C Bindings:
 
 ```c
 // Some boilerplate is omitted for clarity.
@@ -110,7 +100,6 @@ JniResult AndroidUtils__showToast(jobject mainActivity,
   return (JniResult){.result = {.j = 0}, .exception = check_exception()};
 }
 ```
-</details>
 
 The YAML configuration used to generate the above code looks like this:
 
