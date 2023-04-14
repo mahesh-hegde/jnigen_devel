@@ -118,7 +118,6 @@ T _callMethod<T>(int? callType, List<dynamic> args,
         JniResult Function(int, Pointer<JValue>) f) =>
     using((arena) {
       final jArgs = JValueArgs(args, arena);
-      arena.onReleaseAll(jArgs.dispose);
       return _callOrGet<T>(callType, (ct) => f(ct, jArgs.values));
     });
 
@@ -371,7 +370,6 @@ class JniClass extends JReference {
   JObject newInstance(JMethodIDPtr ctor, List<dynamic> args) => using((arena) {
         _ensureNotDeleted();
         final jArgs = JValueArgs(args, arena);
-        arena.onReleaseAll(jArgs.dispose);
         final res = _accessors.newObject(reference, ctor, jArgs.values).object;
         return JObject.fromRef(res);
       });
