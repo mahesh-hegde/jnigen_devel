@@ -44,8 +44,8 @@ abstract class JObjType<T extends JObject> extends JType<T> {
 
   JniClass getClass() {
     if (signature.startsWith('L') && signature.endsWith(';')) {
-      return Jni.findJniClass(signature.substring(1, signature.length - 1));
+      return Jni.findJClass(signature.substring(1, signature.length - 1));
     }
-    return Jni.findJniClass(signature);
+    return Jni.findJClass(signature);
   }
 }
