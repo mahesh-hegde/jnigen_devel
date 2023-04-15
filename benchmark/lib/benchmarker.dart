@@ -11,16 +11,9 @@ class Benchmarker {
   int repetitions;
   Benchmarker({required this.repetitions});
 
-  Duration timeSyncCallback(SyncCallback callback) {
-    final stopwatch = Stopwatch()..start();
-    for (int i = 0; i < repetitions; i++) {
-      callback();
-    }
-    stopwatch.stop();
-    return Duration(microseconds: stopwatch.elapsedMicroseconds);
-  }
-
   Future<Duration> timeAsyncCallback<T>(AsyncCallback<T> callback) async {
+    // call the callback once to remove any warmup effects.
+    await callback();
     final stopwatch = Stopwatch()..start();
     for (int i = 0; i < repetitions; i++) {
       await callback();
@@ -29,35 +22,12 @@ class Benchmarker {
     return Duration(microseconds: stopwatch.elapsedMicroseconds);
   }
 
-  static const stringLengths = [0, 1, 10, 50, 100, 250, 500];
+  static const stringLengths = [1, 10, 50, 0, 100, 250, 500];
 
-  MeasurementResult measureSyncFunctions(SyncMeasuredFunctions functions) {
+  Future<MeasurementResult> measureFunctions(
+      MeasuredFunctions functions) async {
     final getStringTimes = <int, Duration>{};
     final toUpperCaseTimes = <int, Duration>{};
-    final getIntegerTime = timeSyncCallback(functions.getInteger);
-    for (final len in stringLengths) {
-      getStringTimes[len] =
-          timeSyncCallback(() => functions.getStringOfLength(len));
-      final str = 's' * len;
-      toUpperCaseTimes[len] =
-          timeSyncCallback(() => functions.toUpperCase(str));
-    }
-    final maxFunctionTime =
-        timeSyncCallback(() => functions.max(2, 4, 6, 8, 1, 3, 5, 7));
-    return MeasurementResult(
-      implementationName: functions.implementationName,
-      integerGetTime: getIntegerTime,
-      maxFunctionTime: maxFunctionTime,
-      stringGetTimes: getStringTimes,
-      toUpperCaseTimes: toUpperCaseTimes,
-    );
-  }
-
-  Future<MeasurementResult> measureAsyncFunctions(
-      AsyncMeasuredFunctions functions) async {
-    final getStringTimes = <int, Duration>{};
-    final toUpperCaseTimes = <int, Duration>{};
-    final getIntegerTime = timeSyncCallback(functions.getInteger);
     for (final len in stringLengths) {
       getStringTimes[len] =
           await timeAsyncCallback(() => functions.getStringOfLength(len));
@@ -65,8 +35,9 @@ class Benchmarker {
       toUpperCaseTimes[len] =
           await timeAsyncCallback(() => functions.toUpperCase(str));
     }
+    final getIntegerTime = await timeAsyncCallback(functions.getInteger);
     final maxFunctionTime =
-        timeSyncCallback(() => functions.max(2, 4, 6, 8, 1, 3, 5, 7));
+        await timeAsyncCallback(() => functions.max(2, 4, 6, 8, 1, 3, 5, 7));
     return MeasurementResult(
       implementationName: functions.implementationName,
       integerGetTime: getIntegerTime,

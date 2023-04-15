@@ -7,7 +7,7 @@ import 'package:jni/jni.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'bindings/dart_only_bindings.dart';
+import 'bindings/c_based_bindings.dart';
 
 const repetitions = 1000;
 
@@ -106,8 +106,13 @@ class _BenchmarkAppState extends State<BenchmarkApp> {
   static const MethodChannel methodChannel =
       MethodChannel('com.github.dart_lang.jnigen/benchmark');
 
+  static const skipMethodChannelBenchmarks = true;
+
   Future<Duration> timeChannelMethod(
       String methodName, dynamic arguments, int nTimes) async {
+    if (skipMethodChannelBenchmarks) {
+      return const Duration(seconds: 0);
+    }
     final begin = DateTime.now();
     for (int i = 0; i < nTimes; i++) {
       Object? _ = await methodChannel.invokeMethod(methodName, arguments);

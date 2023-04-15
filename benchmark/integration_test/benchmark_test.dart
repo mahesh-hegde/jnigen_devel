@@ -1,4 +1,4 @@
-import 'package:benchmark/benchmark_utils.dart';
+import 'package:benchmark/benchmarker.dart';
 import 'package:benchmark/functions/c_based_functions.dart';
 import 'package:benchmark/functions/dart_only_functions.dart';
 import 'package:benchmark/functions/method_channel_functions.dart';
@@ -31,23 +31,15 @@ void main() {
           .toList();
       final columns = <List<String>>[benchmarkNames];
       final columnNames = <String>['Name'];
-      final syncMeasurables = [CBasedFunctions(), DartOnlyFunctions()];
-      for (var m in syncMeasurables) {
+      final measurables = [
+        CBasedFunctions(),
+        DartOnlyFunctions(),
+        MethodChannelFunctions(),
+      ];
+      for (var m in measurables) {
         m.getInteger();
         columnNames.add(m.implementationName);
-        final result = benchmarker.measureSyncFunctions(m);
-        columns.add(benchmarker
-            .getBenchmarkResults(result)
-            .map(_formatDuration)
-            .pad(28)
-            .toList());
-      }
-
-      final asyncMeasurables = [MethodChannelFunctions()];
-      for (var m in asyncMeasurables) {
-        await m.getInteger();
-        columnNames.add(m.implementationName);
-        final result = await benchmarker.measureAsyncFunctions(m);
+        final result = await benchmarker.measureFunctions(m);
         columns.add(benchmarker
             .getBenchmarkResults(result)
             .map(_formatDuration)

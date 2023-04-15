@@ -4,16 +4,6 @@
 
 abstract class MeasuredFunctions {
   String get implementationName;
-}
-
-abstract class SyncMeasuredFunctions extends MeasuredFunctions {
-  int getInteger();
-  int max(int a, int b, int c, int d, int e, int f, int g, int h);
-  String getStringOfLength(int n);
-  String toUpperCase(String s);
-}
-
-abstract class AsyncMeasuredFunctions extends MeasuredFunctions {
   Future<int> getInteger();
   Future<int> max(int a, int b, int c, int d, int e, int f, int g, int h);
   Future<String> getStringOfLength(int n);

@@ -5,7 +5,7 @@
 import 'package:benchmark/functions/measured_functions.dart';
 import 'package:flutter/services.dart';
 
-class MethodChannelFunctions extends AsyncMeasuredFunctions {
+class MethodChannelFunctions extends MeasuredFunctions {
   static const MethodChannel methodChannel =
       MethodChannel('com.github.dart_lang.jnigen/benchmark');
 
