@@ -5,12 +5,12 @@
 #include "jni.h"
 
 thread_local JNIEnv* jniEnv;
-JniContext jni;
+JniContext* jni;
 
-JniContext (*context_getter)(void);
+JniContext* (*context_getter)(void);
 JNIEnv* (*env_getter)(void);
 
-void setJniGetters(JniContext (*cg)(void), JNIEnv* (*eg)(void)) {
+void setJniGetters(JniContext* (*cg)(void), JNIEnv* (*eg)(void)) {
   context_getter = cg;
   env_getter = eg;
 }
@@ -22,16 +22,16 @@ jmethodID _m_MainActivity__ctor = NULL;
 FFI_PLUGIN_EXPORT
 JniResult MainActivity__ctor() {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_method(_c_MainActivity, &_m_MainActivity__ctor, "<init>", "()V");
   if (_m_MainActivity__ctor == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   jobject _result =
       (*jniEnv)->NewObject(jniEnv, _c_MainActivity, _m_MainActivity__ctor);
-  return (JniResult){.result = {.l = to_global_ref(_result)},
+  return (JniResult){.value = {.l = to_global_ref(_result)},
                      .exception = check_exception()};
 }
 
@@ -40,52 +40,52 @@ FFI_PLUGIN_EXPORT
 JniResult MainActivity__configureFlutterEngine(jobject self_,
                                                jobject flutterEngine) {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_method(_c_MainActivity, &_m_MainActivity__configureFlutterEngine,
               "configureFlutterEngine",
               "(Lio/flutter/embedding/engine/FlutterEngine;)V");
   if (_m_MainActivity__configureFlutterEngine == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   (*jniEnv)->CallVoidMethod(
       jniEnv, self_, _m_MainActivity__configureFlutterEngine, flutterEngine);
-  return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
 }
 
 jmethodID _m_MainActivity__getInteger = NULL;
 FFI_PLUGIN_EXPORT
 JniResult MainActivity__getInteger() {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_static_method(_c_MainActivity, &_m_MainActivity__getInteger,
                      "getInteger", "()I");
   if (_m_MainActivity__getInteger == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   int32_t _result = (*jniEnv)->CallStaticIntMethod(jniEnv, _c_MainActivity,
                                                    _m_MainActivity__getInteger);
-  return (JniResult){.result = {.i = _result}, .exception = check_exception()};
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
 }
 
 jmethodID _m_MainActivity__getStringOfLength = NULL;
 FFI_PLUGIN_EXPORT
 JniResult MainActivity__getStringOfLength(int32_t n) {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_static_method(_c_MainActivity, &_m_MainActivity__getStringOfLength,
                      "getStringOfLength", "(I)Ljava/lang/String;");
   if (_m_MainActivity__getStringOfLength == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   jobject _result = (*jniEnv)->CallStaticObjectMethod(
       jniEnv, _c_MainActivity, _m_MainActivity__getStringOfLength, n);
-  return (JniResult){.result = {.l = to_global_ref(_result)},
+  return (JniResult){.value = {.l = to_global_ref(_result)},
                      .exception = check_exception()};
 }
 
@@ -93,18 +93,18 @@ jmethodID _m_MainActivity__getOrigin = NULL;
 FFI_PLUGIN_EXPORT
 JniResult MainActivity__getOrigin() {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_static_method(
       _c_MainActivity, &_m_MainActivity__getOrigin, "getOrigin",
       "()Lcom/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate;");
   if (_m_MainActivity__getOrigin == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   jobject _result = (*jniEnv)->CallStaticObjectMethod(
       jniEnv, _c_MainActivity, _m_MainActivity__getOrigin);
-  return (JniResult){.result = {.l = to_global_ref(_result)},
+  return (JniResult){.value = {.l = to_global_ref(_result)},
                      .exception = check_exception()};
 }
 
@@ -112,20 +112,20 @@ jmethodID _m_MainActivity__getMidPoint = NULL;
 FFI_PLUGIN_EXPORT
 JniResult MainActivity__getMidPoint(jobject a, jobject b) {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_static_method(
       _c_MainActivity, &_m_MainActivity__getMidPoint, "getMidPoint",
       "(Lcom/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate;Lcom/"
       "github/dart_lang/jnigen/benchmark/MainActivity$Coordinate;)Lcom/github/"
       "dart_lang/jnigen/benchmark/MainActivity$Coordinate;");
   if (_m_MainActivity__getMidPoint == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   jobject _result = (*jniEnv)->CallStaticObjectMethod(
       jniEnv, _c_MainActivity, _m_MainActivity__getMidPoint, a, b);
-  return (JniResult){.result = {.l = to_global_ref(_result)},
+  return (JniResult){.value = {.l = to_global_ref(_result)},
                      .exception = check_exception()};
 }
 
@@ -133,17 +133,17 @@ jmethodID _m_MainActivity__toUpperCase = NULL;
 FFI_PLUGIN_EXPORT
 JniResult MainActivity__toUpperCase(jobject text) {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_static_method(_c_MainActivity, &_m_MainActivity__toUpperCase,
                      "toUpperCase", "(Ljava/lang/String;)Ljava/lang/String;");
   if (_m_MainActivity__toUpperCase == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   jobject _result = (*jniEnv)->CallStaticObjectMethod(
       jniEnv, _c_MainActivity, _m_MainActivity__toUpperCase, text);
-  return (JniResult){.result = {.l = to_global_ref(_result)},
+  return (JniResult){.value = {.l = to_global_ref(_result)},
                      .exception = check_exception()};
 }
 
@@ -158,17 +158,17 @@ JniResult MainActivity__max(int32_t a,
                             int32_t g,
                             int32_t h) {
   load_env();
-  load_class_gr(&_c_MainActivity,
-                "com/github/dart_lang/jnigen/benchmark/MainActivity");
+  load_class_global_ref(&_c_MainActivity,
+                        "com/github/dart_lang/jnigen/benchmark/MainActivity");
   if (_c_MainActivity == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_static_method(_c_MainActivity, &_m_MainActivity__max, "max",
                      "(IIIIIIII)I");
   if (_m_MainActivity__max == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   int32_t _result = (*jniEnv)->CallStaticIntMethod(
       jniEnv, _c_MainActivity, _m_MainActivity__max, a, b, c, d, e, f, g, h);
-  return (JniResult){.result = {.i = _result}, .exception = check_exception()};
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
 }
 
 // com.github.dart_lang.jnigen.benchmark.MainActivity$Coordinate
@@ -178,19 +178,19 @@ jmethodID _m_MainActivity_Coordinate__ctor = NULL;
 FFI_PLUGIN_EXPORT
 JniResult MainActivity_Coordinate__ctor(int32_t x, int32_t y, int32_t z) {
   load_env();
-  load_class_gr(
+  load_class_global_ref(
       &_c_MainActivity_Coordinate,
       "com/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate");
   if (_c_MainActivity_Coordinate == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_method(_c_MainActivity_Coordinate, &_m_MainActivity_Coordinate__ctor,
               "<init>", "(III)V");
   if (_m_MainActivity_Coordinate__ctor == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   jobject _result =
       (*jniEnv)->NewObject(jniEnv, _c_MainActivity_Coordinate,
                            _m_MainActivity_Coordinate__ctor, x, y, z);
-  return (JniResult){.result = {.l = to_global_ref(_result)},
+  return (JniResult){.value = {.l = to_global_ref(_result)},
                      .exception = check_exception()};
 }
 
@@ -198,88 +198,88 @@ jfieldID _f_MainActivity_Coordinate__x = NULL;
 FFI_PLUGIN_EXPORT
 JniResult get_MainActivity_Coordinate__x(jobject self_) {
   load_env();
-  load_class_gr(
+  load_class_global_ref(
       &_c_MainActivity_Coordinate,
       "com/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate");
   if (_c_MainActivity_Coordinate == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_field(_c_MainActivity_Coordinate, &_f_MainActivity_Coordinate__x, "x",
              "I");
   int32_t _result =
       (*jniEnv)->GetIntField(jniEnv, self_, _f_MainActivity_Coordinate__x);
-  return (JniResult){.result = {.i = _result}, .exception = check_exception()};
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
 }
 
 FFI_PLUGIN_EXPORT
 JniResult set_MainActivity_Coordinate__x(jobject self_, int32_t value) {
   load_env();
-  load_class_gr(
+  load_class_global_ref(
       &_c_MainActivity_Coordinate,
       "com/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate");
   if (_c_MainActivity_Coordinate == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_field(_c_MainActivity_Coordinate, &_f_MainActivity_Coordinate__x, "x",
              "I");
   (*jniEnv)->SetIntField(jniEnv, self_, _f_MainActivity_Coordinate__x, value);
-  return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
 }
 
 jfieldID _f_MainActivity_Coordinate__y = NULL;
 FFI_PLUGIN_EXPORT
 JniResult get_MainActivity_Coordinate__y(jobject self_) {
   load_env();
-  load_class_gr(
+  load_class_global_ref(
       &_c_MainActivity_Coordinate,
       "com/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate");
   if (_c_MainActivity_Coordinate == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_field(_c_MainActivity_Coordinate, &_f_MainActivity_Coordinate__y, "y",
              "I");
   int32_t _result =
       (*jniEnv)->GetIntField(jniEnv, self_, _f_MainActivity_Coordinate__y);
-  return (JniResult){.result = {.i = _result}, .exception = check_exception()};
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
 }
 
 FFI_PLUGIN_EXPORT
 JniResult set_MainActivity_Coordinate__y(jobject self_, int32_t value) {
   load_env();
-  load_class_gr(
+  load_class_global_ref(
       &_c_MainActivity_Coordinate,
       "com/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate");
   if (_c_MainActivity_Coordinate == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_field(_c_MainActivity_Coordinate, &_f_MainActivity_Coordinate__y, "y",
              "I");
   (*jniEnv)->SetIntField(jniEnv, self_, _f_MainActivity_Coordinate__y, value);
-  return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
 }
 
 jfieldID _f_MainActivity_Coordinate__z = NULL;
 FFI_PLUGIN_EXPORT
 JniResult get_MainActivity_Coordinate__z(jobject self_) {
   load_env();
-  load_class_gr(
+  load_class_global_ref(
       &_c_MainActivity_Coordinate,
       "com/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate");
   if (_c_MainActivity_Coordinate == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_field(_c_MainActivity_Coordinate, &_f_MainActivity_Coordinate__z, "z",
              "I");
   int32_t _result =
       (*jniEnv)->GetIntField(jniEnv, self_, _f_MainActivity_Coordinate__z);
-  return (JniResult){.result = {.i = _result}, .exception = check_exception()};
+  return (JniResult){.value = {.i = _result}, .exception = check_exception()};
 }
 
 FFI_PLUGIN_EXPORT
 JniResult set_MainActivity_Coordinate__z(jobject self_, int32_t value) {
   load_env();
-  load_class_gr(
+  load_class_global_ref(
       &_c_MainActivity_Coordinate,
       "com/github/dart_lang/jnigen/benchmark/MainActivity$Coordinate");
   if (_c_MainActivity_Coordinate == NULL)
-    return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+    return (JniResult){.value = {.j = 0}, .exception = check_exception()};
   load_field(_c_MainActivity_Coordinate, &_f_MainActivity_Coordinate__z, "z",
              "I");
   (*jniEnv)->SetIntField(jniEnv, self_, _f_MainActivity_Coordinate__z, value);
-  return (JniResult){.result = {.j = 0}, .exception = check_exception()};
+  return (JniResult){.value = {.j = 0}, .exception = check_exception()};
 }
