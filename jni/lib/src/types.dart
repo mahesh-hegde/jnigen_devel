@@ -19,8 +19,8 @@ part 'jreference.dart';
 part 'jobject.dart';
 part 'jstring.dart';
 
-final Pointer<JniAccessors> _accessors = Jni.accessors;
-final Pointer<GlobalJniEnv> _env = Jni.env;
+final JniAccessors _accessors = Jni.accessors;
+final GlobalJniEnv _env = Jni.env;
 // This typedef is needed because void is a keyword and cannot be used in
 // type switch like a regular type.
 typedef _VoidType = void;
@@ -34,6 +34,11 @@ abstract class JType<T> {
 }
 
 abstract class JObjType<T extends JObject> extends JType<T> {
+  /// Number of super types. Distance to the root type.
+  int get superCount;
+
+  JObjType get superType;
+
   const JObjType();
 
   @override
@@ -42,10 +47,29 @@ abstract class JObjType<T extends JObject> extends JType<T> {
   /// Creates an object from this type using the reference.
   T fromRef(Pointer<Void> ref);
 
-  JniClass getClass() {
+  JClass getClass() {
     if (signature.startsWith('L') && signature.endsWith(';')) {
       return Jni.findJClass(signature.substring(1, signature.length - 1));
     }
     return Jni.findJClass(signature);
   }
+}
+
+/// Lowest common ancestor of two types in the inheritance tree.
+JObjType _lowestCommonAncestor(JObjType a, JObjType b) {
+  while (a.superCount > b.superCount) {
+    a = a.superType;
+  }
+  while (b.superCount > a.superCount) {
+    b = b.superType;
+  }
+  while (a != b) {
+    a = a.superType;
+    b = b.superType;
+  }
+  return a;
+}
+
+JObjType lowestCommonSuperType(List<JObjType> types) {
+  return types.reduce(_lowestCommonAncestor);
 }

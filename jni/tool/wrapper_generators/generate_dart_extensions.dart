@@ -21,6 +21,8 @@ class Paths {
       bindingsDir.resolve("jnienv_javavm_extensions.dart");
 }
 
+const writeLocalEnvExtensions = false;
+
 void executeDartFormat(List<Uri> files) {
   final paths = files.map((u) => u.toFilePath()).toList();
   logger.info('execute dart format ${paths.join(" ")}');
@@ -31,7 +33,7 @@ void executeDartFormat(List<Uri> files) {
   }
 }
 
-const globalEnvType = 'GlobalJniEnv';
+const globalEnvType = 'GlobalJniEnvStruct';
 const localEnvType = 'JNINativeInterface';
 const jvmType = 'JNIInvokeInterface';
 
@@ -97,17 +99,21 @@ String? getGlobalEnvExtensionFunction(Member field, Type? checkedReturnType) {
     if (checkedGetter == 'boolean') {
       returns = 'bool';
     }
-    return '$returns ${field.name}($signature) => '
-        'ref.${field.name}.asFunction<$dartType>()($callArgs)'
-        '.$checkedGetter;\n';
+    return '''
+late final _${field.name} =
+  ptr.ref.${field.name}.asFunction<$dartType>();\n
+$returns ${field.name}($signature) =>
+  _${field.name}($callArgs).$checkedGetter;
+
+''';
   }
   return null;
 }
 
 void writeDartExtensions(Library library) {
   const header = '''
-// Auto generated file. Do not edit.
 // ignore_for_file: non_constant_identifier_names
+// coverage:ignore-file
 
 import "dart:ffi" as ffi;\n
 import "jni_bindings_generated.dart";
@@ -119,24 +125,39 @@ import "../accessors.dart";
 ''';
 
   final globalEnvExtension = getGlobalEnvExtension(library);
-  final accessorExtension =
-      getFunctionPointerExtension(library, 'JniAccessors');
+  final accessorExtension = getFunctionPointerExtension(
+    library,
+    'JniAccessorsStruct',
+    'JniAccessors',
+  );
+  File.fromUri(Paths.globalEnvExts).writeAsStringSync(preamble +
+      header +
+      importAccessors +
+      globalEnvExtension +
+      accessorExtension);
+  final localEnvExtsFile = File.fromUri(Paths.localEnvExts);
+  if (localEnvExtsFile.existsSync()) {
+    localEnvExtsFile.deleteSync();
+  }
+  if (!writeLocalEnvExtensions) {
+    return;
+  }
   final envExtension = getFunctionPointerExtension(
     library,
     'JniEnv',
+    'LocalJniEnv',
     indirect: true,
     implicitThis: true,
   );
   final jvmExtension = getFunctionPointerExtension(
     library,
     'JavaVM',
+    'JniJavaVM',
     indirect: true,
     implicitThis: true,
   );
-  File.fromUri(Paths.globalEnvExts).writeAsStringSync(
-      header + importAccessors + globalEnvExtension + accessorExtension);
-  File.fromUri(Paths.localEnvExts)
-      .writeAsStringSync(header + envExtension + jvmExtension);
+  localEnvExtsFile
+      .writeAsStringSync(preamble + header + envExtension + jvmExtension);
 }
 
 String getGlobalEnvExtension(
@@ -156,8 +177,15 @@ String getGlobalEnvExtension(
       .map((m) => getGlobalEnvExtensionFunction(m, checkedReturnTypes[m.name]))
       .whereNotNull()
       .join('\n');
-  return 'extension EnvExtension on ffi.Pointer<$globalEnvType> '
-      '{$extensionFunctions}';
+  return '''
+/// Wraps over Pointer<GlobalJniEnvStruct> and exposes function pointer fields
+/// as methods.
+class GlobalJniEnv {
+  final ffi.Pointer<GlobalJniEnvStruct> ptr;
+  GlobalJniEnv(this.ptr);
+  $extensionFunctions
+}
+''';
 }
 
 String? getFunctionPointerExtensionFunction(Member field,
@@ -181,18 +209,23 @@ String? getFunctionPointerExtensionFunction(Member field,
     final dartType = FunctionType(returnType: returnType, parameters: params)
         .getDartType(dummyWriter);
     final callArgs = [
-      if (implicitThis) 'this',
+      if (implicitThis) 'ptr',
       ...visibleParams.map((p) => p.name)
     ].join(', ');
     final returns = returnType.getDartType(dummyWriter);
     final dereference = indirect ? 'value.ref' : 'ref';
-    return '$returns ${field.name}($signature) => '
-        '$dereference.${field.name}.asFunction<$dartType>()($callArgs);\n';
+    return '''
+late final _${field.name} =
+  ptr.$dereference.${field.name}.asFunction<$dartType>();
+$returns ${field.name}($signature) => _${field.name}($callArgs);
+
+''';
   }
   return null;
 }
 
-String getFunctionPointerExtension(Library library, String type,
+String getFunctionPointerExtension(
+    Library library, String type, String wrapperClassName,
     {bool indirect = false, bool implicitThis = false}) {
   final typeBinding =
       library.bindings.firstWhere((b) => b.name == type) as Type;
@@ -202,8 +235,16 @@ String getFunctionPointerExtension(Library library, String type,
           indirect: indirect, implicitThis: implicitThis))
       .whereNotNull()
       .join('\n');
-  return 'extension ${type}Extension on ffi.Pointer<$type> '
-      '{$extensionFunctions}';
+  return '''
+/// Wraps over the function pointers in $type and exposes them as methods.
+class $wrapperClassName {
+  final ffi.Pointer<$type> ptr;
+  $wrapperClassName(this.ptr);
+
+  $extensionFunctions
+}
+
+''';
 }
 
 void generateDartExtensions(Library library) {

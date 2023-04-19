@@ -26,9 +26,8 @@ final jniAccessors = jni.Jni.accessors;
 
 /// from: com.github.dart_lang.jnigen.benchmark.MainActivity
 class MainActivity extends jni.JObject {
-  late final jni.JObjType? _$type;
   @override
-  jni.JObjType get $type => _$type ??= type;
+  late final jni.JObjType $type = type;
 
   MainActivity.fromRef(
     jni.JObjectPtr ref,
@@ -44,9 +43,10 @@ class MainActivity extends jni.JObject {
 
   /// from: public void <init>()
   /// The returned object must be deleted after use, by calling the `delete` method.
-  MainActivity()
-      : super.fromRef(
-            jniAccessors.newObjectWithArgs(_classRef, _id_ctor, []).object);
+  factory MainActivity() {
+    return MainActivity.fromRef(
+        jniAccessors.newObjectWithArgs(_classRef, _id_ctor, []).object);
+  }
 
   static final _id_configureFlutterEngine = jniAccessors.getMethodIDOf(
       _classRef,
@@ -54,28 +54,37 @@ class MainActivity extends jni.JObject {
       r"(Lio/flutter/embedding/engine/FlutterEngine;)V");
 
   /// from: public void configureFlutterEngine(io.flutter.embedding.engine.FlutterEngine flutterEngine)
-  void configureFlutterEngine(jni.JObject flutterEngine) =>
-      jniAccessors.callMethodWithArgs(reference, _id_configureFlutterEngine,
-          jni.JniCallType.voidType, [flutterEngine.reference]).check();
+  void configureFlutterEngine(
+    jni.JObject flutterEngine,
+  ) {
+    return jniAccessors.callMethodWithArgs(
+        reference,
+        _id_configureFlutterEngine,
+        jni.JniCallType.voidType,
+        [flutterEngine.reference]).check();
+  }
 
   static final _id_getInteger =
       jniAccessors.getStaticMethodIDOf(_classRef, r"getInteger", r"()I");
 
   /// from: static public int getInteger()
-  static int getInteger() => jniAccessors.callStaticMethodWithArgs(
-      _classRef, _id_getInteger, jni.JniCallType.intType, []).integer;
+  static int getInteger() {
+    return jniAccessors.callStaticMethodWithArgs(
+        _classRef, _id_getInteger, jni.JniCallType.intType, []).integer;
+  }
 
   static final _id_getStringOfLength = jniAccessors.getStaticMethodIDOf(
       _classRef, r"getStringOfLength", r"(I)Ljava/lang/String;");
 
   /// from: static public java.lang.String getStringOfLength(int n)
   /// The returned object must be deleted after use, by calling the `delete` method.
-  static jni.JString getStringOfLength(int n) =>
-      const jni.JStringType().fromRef(jniAccessors.callStaticMethodWithArgs(
-          _classRef,
-          _id_getStringOfLength,
-          jni.JniCallType.objectType,
-          [jni.JValueInt(n)]).object);
+  static jni.JString getStringOfLength(
+    int n,
+  ) {
+    return const jni.JStringType().fromRef(jniAccessors
+        .callStaticMethodWithArgs(_classRef, _id_getStringOfLength,
+            jni.JniCallType.objectType, [jni.JValueInt(n)]).object);
+  }
 
   static final _id_getOrigin = jniAccessors.getStaticMethodIDOf(
       _classRef,
@@ -84,10 +93,11 @@ class MainActivity extends jni.JObject {
 
   /// from: static public com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate getOrigin()
   /// The returned object must be deleted after use, by calling the `delete` method.
-  static MainActivity_Coordinate getOrigin() =>
-      const $MainActivity_CoordinateType().fromRef(jniAccessors
-          .callStaticMethodWithArgs(
-              _classRef, _id_getOrigin, jni.JniCallType.objectType, []).object);
+  static MainActivity_Coordinate getOrigin() {
+    return const $MainActivity_CoordinateType().fromRef(jniAccessors
+        .callStaticMethodWithArgs(
+            _classRef, _id_getOrigin, jni.JniCallType.objectType, []).object);
+  }
 
   static final _id_getMidPoint = jniAccessors.getStaticMethodIDOf(
       _classRef,
@@ -97,39 +107,53 @@ class MainActivity extends jni.JObject {
   /// from: static public com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate getMidPoint(com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate a, com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate b)
   /// The returned object must be deleted after use, by calling the `delete` method.
   static MainActivity_Coordinate getMidPoint(
-          MainActivity_Coordinate a, MainActivity_Coordinate b) =>
-      const $MainActivity_CoordinateType().fromRef(jniAccessors
-          .callStaticMethodWithArgs(_classRef, _id_getMidPoint,
-              jni.JniCallType.objectType, [a.reference, b.reference]).object);
+    MainActivity_Coordinate a,
+    MainActivity_Coordinate b,
+  ) {
+    return const $MainActivity_CoordinateType().fromRef(jniAccessors
+        .callStaticMethodWithArgs(_classRef, _id_getMidPoint,
+            jni.JniCallType.objectType, [a.reference, b.reference]).object);
+  }
 
   static final _id_toUpperCase = jniAccessors.getStaticMethodIDOf(
       _classRef, r"toUpperCase", r"(Ljava/lang/String;)Ljava/lang/String;");
 
   /// from: static public java.lang.String toUpperCase(java.lang.String text)
   /// The returned object must be deleted after use, by calling the `delete` method.
-  static jni.JString toUpperCase(jni.JString text) =>
-      const jni.JStringType().fromRef(jniAccessors.callStaticMethodWithArgs(
-          _classRef,
-          _id_toUpperCase,
-          jni.JniCallType.objectType,
-          [text.reference]).object);
+  static jni.JString toUpperCase(
+    jni.JString text,
+  ) {
+    return const jni.JStringType().fromRef(jniAccessors
+        .callStaticMethodWithArgs(_classRef, _id_toUpperCase,
+            jni.JniCallType.objectType, [text.reference]).object);
+  }
 
   static final _id_max =
       jniAccessors.getStaticMethodIDOf(_classRef, r"max", r"(IIIIIIII)I");
 
   /// from: static public int max(int a, int b, int c, int d, int e, int f, int g, int h)
-  static int max(int a, int b, int c, int d, int e, int f, int g, int h) =>
-      jniAccessors.callStaticMethodWithArgs(
-          _classRef, _id_max, jni.JniCallType.intType, [
-        jni.JValueInt(a),
-        jni.JValueInt(b),
-        jni.JValueInt(c),
-        jni.JValueInt(d),
-        jni.JValueInt(e),
-        jni.JValueInt(f),
-        jni.JValueInt(g),
-        jni.JValueInt(h)
-      ]).integer;
+  static int max(
+    int a,
+    int b,
+    int c,
+    int d,
+    int e,
+    int f,
+    int g,
+    int h,
+  ) {
+    return jniAccessors
+        .callStaticMethodWithArgs(_classRef, _id_max, jni.JniCallType.intType, [
+      jni.JValueInt(a),
+      jni.JValueInt(b),
+      jni.JValueInt(c),
+      jni.JValueInt(d),
+      jni.JValueInt(e),
+      jni.JValueInt(f),
+      jni.JValueInt(g),
+      jni.JValueInt(h)
+    ]).integer;
+  }
 }
 
 class $MainActivityType extends jni.JObjType<MainActivity> {
@@ -141,13 +165,26 @@ class $MainActivityType extends jni.JObjType<MainActivity> {
 
   @override
   MainActivity fromRef(jni.JObjectPtr ref) => MainActivity.fromRef(ref);
+
+  @override
+  jni.JObjType get superType => const jni.JObjectType();
+
+  @override
+  final superCount = 1;
+
+  @override
+  int get hashCode => ($MainActivityType).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == $MainActivityType && other is $MainActivityType;
+  }
 }
 
 /// from: com.github.dart_lang.jnigen.benchmark.MainActivity$Coordinate
 class MainActivity_Coordinate extends jni.JObject {
-  late final jni.JObjType? _$type;
   @override
-  jni.JObjType get $type => _$type ??= type;
+  late final jni.JObjType $type = type;
 
   MainActivity_Coordinate.fromRef(
     jni.JObjectPtr ref,
@@ -202,9 +239,16 @@ class MainActivity_Coordinate extends jni.JObject {
 
   /// from: public void <init>(int x, int y, int z)
   /// The returned object must be deleted after use, by calling the `delete` method.
-  MainActivity_Coordinate(int x, int y, int z)
-      : super.fromRef(jniAccessors.newObjectWithArgs(_classRef, _id_ctor,
-            [jni.JValueInt(x), jni.JValueInt(y), jni.JValueInt(z)]).object);
+  factory MainActivity_Coordinate(
+    int x,
+    int y,
+    int z,
+  ) {
+    return MainActivity_Coordinate.fromRef(jniAccessors.newObjectWithArgs(
+        _classRef,
+        _id_ctor,
+        [jni.JValueInt(x), jni.JValueInt(y), jni.JValueInt(z)]).object);
+  }
 }
 
 class $MainActivity_CoordinateType
@@ -218,4 +262,19 @@ class $MainActivity_CoordinateType
   @override
   MainActivity_Coordinate fromRef(jni.JObjectPtr ref) =>
       MainActivity_Coordinate.fromRef(ref);
+
+  @override
+  jni.JObjType get superType => const jni.JObjectType();
+
+  @override
+  final superCount = 1;
+
+  @override
+  int get hashCode => ($MainActivity_CoordinateType).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == $MainActivity_CoordinateType &&
+        other is $MainActivity_CoordinateType;
+  }
 }

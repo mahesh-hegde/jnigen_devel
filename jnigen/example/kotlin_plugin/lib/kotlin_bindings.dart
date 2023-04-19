@@ -26,9 +26,8 @@ final ffi.Pointer<T> Function<T extends ffi.NativeType>(String sym) jniLookup =
 
 /// from: Example
 class Example extends jni.JObject {
-  late final jni.JObjType? _$type;
   @override
-  jni.JObjType get $type => _$type ??= type;
+  late final jni.JObjType $type = type;
 
   Example.fromRef(
     jni.JObjectPtr ref,
@@ -42,7 +41,9 @@ class Example extends jni.JObject {
 
   /// from: public void <init>()
   /// The returned object must be deleted after use, by calling the `delete` method.
-  Example() : super.fromRef(_ctor().object);
+  factory Example() {
+    return Example.fromRef(_ctor().object);
+  }
 
   static final _thinkBeforeAnswering = jniLookup<
           ffi.NativeFunction<
@@ -60,7 +61,7 @@ class Example extends jni.JObject {
     _thinkBeforeAnswering(reference, $c.reference).object;
     final $o = jni.JObjectPtr.fromAddress(await $p.first);
     final $k = const jni.JStringType().getClass().reference;
-    if (jni.Jni.env.IsInstanceOf($o, $k) == false) {
+    if (!jni.Jni.env.IsInstanceOf($o, $k)) {
       throw "Failed";
     }
     return const jni.JStringType().fromRef($o);
@@ -75,4 +76,18 @@ class $ExampleType extends jni.JObjType<Example> {
 
   @override
   Example fromRef(jni.JObjectPtr ref) => Example.fromRef(ref);
+
+  @override
+  jni.JObjType get superType => const jni.JObjectType();
+
+  @override
+  final superCount = 1;
+
+  @override
+  int get hashCode => ($ExampleType).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == $ExampleType && other is $ExampleType;
+  }
 }

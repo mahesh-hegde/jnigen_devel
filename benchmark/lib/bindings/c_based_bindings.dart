@@ -26,9 +26,8 @@ final ffi.Pointer<T> Function<T extends ffi.NativeType>(String sym) jniLookup =
 
 /// from: com.github.dart_lang.jnigen.benchmark.MainActivity
 class MainActivity extends jni.JObject {
-  late final jni.JObjType? _$type;
   @override
-  jni.JObjType get $type => _$type ??= type;
+  late final jni.JObjType $type = type;
 
   MainActivity.fromRef(
     jni.JObjectPtr ref,
@@ -42,7 +41,9 @@ class MainActivity extends jni.JObject {
 
   /// from: public void <init>()
   /// The returned object must be deleted after use, by calling the `delete` method.
-  MainActivity() : super.fromRef(_ctor().object);
+  factory MainActivity() {
+    return MainActivity.fromRef(_ctor().object);
+  }
 
   static final _configureFlutterEngine = jniLookup<
               ffi.NativeFunction<
@@ -54,8 +55,11 @@ class MainActivity extends jni.JObject {
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
 
   /// from: public void configureFlutterEngine(io.flutter.embedding.engine.FlutterEngine flutterEngine)
-  void configureFlutterEngine(jni.JObject flutterEngine) =>
-      _configureFlutterEngine(reference, flutterEngine.reference).check();
+  void configureFlutterEngine(
+    jni.JObject flutterEngine,
+  ) {
+    return _configureFlutterEngine(reference, flutterEngine.reference).check();
+  }
 
   static final _getInteger =
       jniLookup<ffi.NativeFunction<jni.JniResult Function()>>(
@@ -63,7 +67,9 @@ class MainActivity extends jni.JObject {
           .asFunction<jni.JniResult Function()>();
 
   /// from: static public int getInteger()
-  static int getInteger() => _getInteger().integer;
+  static int getInteger() {
+    return _getInteger().integer;
+  }
 
   static final _getStringOfLength =
       jniLookup<ffi.NativeFunction<jni.JniResult Function(ffi.Int32)>>(
@@ -72,8 +78,11 @@ class MainActivity extends jni.JObject {
 
   /// from: static public java.lang.String getStringOfLength(int n)
   /// The returned object must be deleted after use, by calling the `delete` method.
-  static jni.JString getStringOfLength(int n) =>
-      const jni.JStringType().fromRef(_getStringOfLength(n).object);
+  static jni.JString getStringOfLength(
+    int n,
+  ) {
+    return const jni.JStringType().fromRef(_getStringOfLength(n).object);
+  }
 
   static final _getOrigin =
       jniLookup<ffi.NativeFunction<jni.JniResult Function()>>(
@@ -82,8 +91,9 @@ class MainActivity extends jni.JObject {
 
   /// from: static public com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate getOrigin()
   /// The returned object must be deleted after use, by calling the `delete` method.
-  static MainActivity_Coordinate getOrigin() =>
-      const $MainActivity_CoordinateType().fromRef(_getOrigin().object);
+  static MainActivity_Coordinate getOrigin() {
+    return const $MainActivity_CoordinateType().fromRef(_getOrigin().object);
+  }
 
   static final _getMidPoint = jniLookup<
           ffi.NativeFunction<
@@ -96,9 +106,12 @@ class MainActivity extends jni.JObject {
   /// from: static public com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate getMidPoint(com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate a, com.github.dart_lang.jnigen.benchmark.MainActivity.Coordinate b)
   /// The returned object must be deleted after use, by calling the `delete` method.
   static MainActivity_Coordinate getMidPoint(
-          MainActivity_Coordinate a, MainActivity_Coordinate b) =>
-      const $MainActivity_CoordinateType()
-          .fromRef(_getMidPoint(a.reference, b.reference).object);
+    MainActivity_Coordinate a,
+    MainActivity_Coordinate b,
+  ) {
+    return const $MainActivity_CoordinateType()
+        .fromRef(_getMidPoint(a.reference, b.reference).object);
+  }
 
   static final _toUpperCase = jniLookup<
           ffi.NativeFunction<
@@ -108,8 +121,11 @@ class MainActivity extends jni.JObject {
 
   /// from: static public java.lang.String toUpperCase(java.lang.String text)
   /// The returned object must be deleted after use, by calling the `delete` method.
-  static jni.JString toUpperCase(jni.JString text) =>
-      const jni.JStringType().fromRef(_toUpperCase(text.reference).object);
+  static jni.JString toUpperCase(
+    jni.JString text,
+  ) {
+    return const jni.JStringType().fromRef(_toUpperCase(text.reference).object);
+  }
 
   static final _max = jniLookup<
           ffi.NativeFunction<
@@ -126,8 +142,18 @@ class MainActivity extends jni.JObject {
           jni.JniResult Function(int, int, int, int, int, int, int, int)>();
 
   /// from: static public int max(int a, int b, int c, int d, int e, int f, int g, int h)
-  static int max(int a, int b, int c, int d, int e, int f, int g, int h) =>
-      _max(a, b, c, d, e, f, g, h).integer;
+  static int max(
+    int a,
+    int b,
+    int c,
+    int d,
+    int e,
+    int f,
+    int g,
+    int h,
+  ) {
+    return _max(a, b, c, d, e, f, g, h).integer;
+  }
 }
 
 class $MainActivityType extends jni.JObjType<MainActivity> {
@@ -139,13 +165,26 @@ class $MainActivityType extends jni.JObjType<MainActivity> {
 
   @override
   MainActivity fromRef(jni.JObjectPtr ref) => MainActivity.fromRef(ref);
+
+  @override
+  jni.JObjType get superType => const jni.JObjectType();
+
+  @override
+  final superCount = 1;
+
+  @override
+  int get hashCode => ($MainActivityType).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == $MainActivityType && other is $MainActivityType;
+  }
 }
 
 /// from: com.github.dart_lang.jnigen.benchmark.MainActivity$Coordinate
 class MainActivity_Coordinate extends jni.JObject {
-  late final jni.JObjType? _$type;
   @override
-  jni.JObjType get $type => _$type ??= type;
+  late final jni.JObjType $type = type;
 
   MainActivity_Coordinate.fromRef(
     jni.JObjectPtr ref,
@@ -227,8 +266,13 @@ class MainActivity_Coordinate extends jni.JObject {
 
   /// from: public void <init>(int x, int y, int z)
   /// The returned object must be deleted after use, by calling the `delete` method.
-  MainActivity_Coordinate(int x, int y, int z)
-      : super.fromRef(_ctor(x, y, z).object);
+  factory MainActivity_Coordinate(
+    int x,
+    int y,
+    int z,
+  ) {
+    return MainActivity_Coordinate.fromRef(_ctor(x, y, z).object);
+  }
 }
 
 class $MainActivity_CoordinateType
@@ -242,4 +286,19 @@ class $MainActivity_CoordinateType
   @override
   MainActivity_Coordinate fromRef(jni.JObjectPtr ref) =>
       MainActivity_Coordinate.fromRef(ref);
+
+  @override
+  jni.JObjType get superType => const jni.JObjectType();
+
+  @override
+  final superCount = 1;
+
+  @override
+  int get hashCode => ($MainActivity_CoordinateType).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other.runtimeType == $MainActivity_CoordinateType &&
+        other is $MainActivity_CoordinateType;
+  }
 }
